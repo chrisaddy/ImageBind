@@ -13,16 +13,24 @@ from types import SimpleNamespace
 import torch
 import torch.nn as nn
 
-from models.helpers import (EinOpsRearrange, LearnableLogitScaling, Normalize,
-                            SelectElement, SelectEOSAndProject)
-from models.multimodal_preprocessors import (AudioPreprocessor,
-                                             IMUPreprocessor, PadIm2Video,
-                                             PatchEmbedGeneric,
-                                             RGBDTPreprocessor,
-                                             SpatioTemporalPosEmbeddingHelper,
-                                             TextPreprocessor,
-                                             ThermalPreprocessor)
-from models.transformer import MultiheadAttention, SimpleTransformer
+from imagebind.helpers import (
+    EinOpsRearrange,
+    LearnableLogitScaling,
+    Normalize,
+    SelectElement,
+    SelectEOSAndProject,
+)
+from imagebind.multimodal_preprocessors import (
+    AudioPreprocessor,
+    IMUPreprocessor,
+    PadIm2Video,
+    PatchEmbedGeneric,
+    RGBDTPreprocessor,
+    SpatioTemporalPosEmbeddingHelper,
+    TextPreprocessor,
+    ThermalPreprocessor,
+)
+from imagebind.transformer import MultiheadAttention, SimpleTransformer
 
 ModalityType = SimpleNamespace(
     VISION="vision",
@@ -160,7 +168,8 @@ class ImageBindModel(nn.Module):
         rgbt_preprocessor = RGBDTPreprocessor(
             img_size=[3, video_frames, 224, 224],
             num_cls_tokens=1,
-            pos_embed_fn=partial(SpatioTemporalPosEmbeddingHelper, learnable=True),
+            pos_embed_fn=partial(
+                SpatioTemporalPosEmbeddingHelper, learnable=True),
             rgbt_stem=rgbt_stem,
             depth_stem=None,
         )
@@ -187,7 +196,8 @@ class ImageBindModel(nn.Module):
         audio_preprocessor = AudioPreprocessor(
             img_size=[1, audio_num_mel_bins, audio_target_len],
             num_cls_tokens=1,
-            pos_embed_fn=partial(SpatioTemporalPosEmbeddingHelper, learnable=True),
+            pos_embed_fn=partial(
+                SpatioTemporalPosEmbeddingHelper, learnable=True),
             audio_stem=audio_stem,
         )
 
@@ -207,7 +217,8 @@ class ImageBindModel(nn.Module):
         depth_preprocessor = RGBDTPreprocessor(
             img_size=[1, 224, 224],
             num_cls_tokens=1,
-            pos_embed_fn=partial(SpatioTemporalPosEmbeddingHelper, learnable=True),
+            pos_embed_fn=partial(
+                SpatioTemporalPosEmbeddingHelper, learnable=True),
             rgbt_stem=None,
             depth_stem=depth_stem,
         )
@@ -227,7 +238,8 @@ class ImageBindModel(nn.Module):
         thermal_preprocessor = ThermalPreprocessor(
             img_size=[1, 224, 224],
             num_cls_tokens=1,
-            pos_embed_fn=partial(SpatioTemporalPosEmbeddingHelper, learnable=True),
+            pos_embed_fn=partial(
+                SpatioTemporalPosEmbeddingHelper, learnable=True),
             thermal_stem=thermal_stem,
         )
 
@@ -247,7 +259,8 @@ class ImageBindModel(nn.Module):
             num_cls_tokens=1,
             kernel_size=8,
             embed_dim=imu_embed_dim,
-            pos_embed_fn=partial(SpatioTemporalPosEmbeddingHelper, learnable=True),
+            pos_embed_fn=partial(
+                SpatioTemporalPosEmbeddingHelper, learnable=True),
             imu_stem=imu_stem,
         )
 
@@ -459,7 +472,8 @@ class ImageBindModel(nn.Module):
                 )
                 trunk_inputs = modality_value["trunk"]
                 head_inputs = modality_value["head"]
-                modality_value = self.modality_trunks[modality_key](**trunk_inputs)
+                modality_value = self.modality_trunks[modality_key](
+                    **trunk_inputs)
                 modality_value = self.modality_heads[modality_key](
                     modality_value, **head_inputs
                 )
